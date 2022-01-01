@@ -7,12 +7,13 @@ from PIL import Image
 class MonodepthDataset(Dataset):
     """monodepth dataset"""
 
-    def __init__(self, root, filenames_file, params, dataset, mode):
+    def __init__(self, root, filenames_file, params, dataset, mode, use_aug=False):
         super().__init__()
         self.root = root
         self.params = params
         self.dataset = dataset
         self.mode = mode
+        self.use_aug = use_aug
 
         with open(filenames_file, 'r') as f:
             self.paths = [line.strip().split() for line in f.readlines()]
@@ -34,12 +35,12 @@ class MonodepthDataset(Dataset):
 
         if self.mode == 'train':
             # randomly flip images
-            if np.random.uniform(0, 1) > 0.5:
-                left_image = F.hflip(left_image)
-                right_image = F.hflip(right_image)
+            if self.use_aug and np.random.uniform(0, 1) > 0.5:
+                left_image = F.hflip(right_image)
+                right_image = F.hflip(left_image)
 
             # randomly augment images
-            if np.random.uniform(0, 1) > 0.5:
+            if self.use_aug and np.random.uniform(0, 1) > 0.5:
                 left_image, right_image = self.augment_image_pair(left_image, right_image)
 
             return self.transpose(left_image), self.transpose(right_image)

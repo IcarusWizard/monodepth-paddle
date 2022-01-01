@@ -5,7 +5,7 @@ import paddle.nn.functional as F
 class DispHead(nn.Layer):
     def __init__(self, feature_dim):
         super().__init__()
-        self.conv = nn.Conv2D(feature_dim, 2, 3, 1, padding=1)
+        self.conv = nn.Conv2D(feature_dim, 2, 3, 1, padding=1, weight_attr=nn.initializer.XavierUniform())
 
     def forward(self, x):
         return 0.3 * F.sigmoid(self.conv(x))
@@ -16,14 +16,14 @@ class ResConv(nn.Layer):
         self.do_proj = input_dim != output_dim or stride == 2
 
         self.res = nn.Sequential(
-            nn.Conv2D(input_dim, output_dim, 1, 1),
+            nn.Conv2D(input_dim, output_dim, 1, 1, weight_attr=nn.initializer.XavierUniform()),
             nn.ELU(),
-            nn.Conv2D(output_dim, output_dim, 3, stride, padding=1),
+            nn.Conv2D(output_dim, output_dim, 3, stride, padding=1, weight_attr=nn.initializer.XavierUniform()),
             nn.ELU(),
-            nn.Conv2D(output_dim, 4 * output_dim, 1, 1)
+            nn.Conv2D(output_dim, 4 * output_dim, 1, 1, weight_attr=nn.initializer.XavierUniform())
         )
 
-        self.shortcut = nn.Conv2D(input_dim, 4 * output_dim, 1, stride) or nn.Identity()
+        self.shortcut = nn.Conv2D(input_dim, 4 * output_dim, 1, stride, weight_attr=nn.initializer.XavierUniform()) or nn.Identity()
 
     def forward(self, x):
         return F.elu(self.res(x) + self.shortcut(x))
@@ -160,7 +160,7 @@ class MonodepthModel(nn.Layer):
 
     def conv(self, input_dim, output_dim, kernel_size, stride, activation=nn.ELU):
         return nn.Sequential(
-            nn.Conv2D(input_dim, output_dim, kernel_size, stride, padding=kernel_size//2),
+            nn.Conv2D(input_dim, output_dim, kernel_size, stride, padding=kernel_size//2, weight_attr=nn.initializer.XavierUniform()),
             activation()
         )
 
@@ -177,7 +177,7 @@ class MonodepthModel(nn.Layer):
         )
 
     def deconv(self, input_dim, output_dim, kernel_size, scale):
-        return nn.Conv2DTranspose(input_dim, output_dim, kernel_size, scale, padding=kernel_size//2)
+        return nn.Conv2DTranspose(input_dim, output_dim, kernel_size, scale, padding=kernel_size//2, weight_attr=nn.initializer.XavierUniform())
 
     def build_vgg(self):
         #set convenience functions
