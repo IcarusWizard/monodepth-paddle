@@ -36,8 +36,7 @@ class MonodepthDataset(Dataset):
         if self.mode == 'train':
             # randomly flip images
             if self.use_aug and np.random.uniform(0, 1) > 0.5:
-                left_image = F.hflip(right_image)
-                right_image = F.hflip(left_image)
+                left_image, right_image = F.hflip(right_image), F.hflip(left_image)
 
             # randomly augment images
             if self.use_aug and np.random.uniform(0, 1) > 0.5:
