@@ -11,22 +11,6 @@ from data import *
 from utils import *
 from loss import get_monodepth_loss
 
-def post_process_disparity(disp):
-    _, b, h, w = disp.shape
-    l_disp = disp[0]
-    r_disp = np.flip(disp[1], axis=-1)
-    m_disp = 0.5 * (l_disp + r_disp)
-    l, _ = np.meshgrid(np.linspace(0, 1, w), np.linspace(0, 1, h))
-    l_mask = 1.0 - np.clip(20 * (l.astype(np.float32) - 0.05), 0, 1)
-    r_mask = np.flip(l_mask, axis=-1)
-    return r_mask * l_disp + l_mask * r_disp + (1.0 - l_mask - r_mask) * m_disp
-
-def count_text_lines(file_path):
-    f = open(file_path, 'r')
-    lines = f.readlines()
-    f.close()
-    return len(lines)
-
 def train(params):
     """Training loop."""
 
@@ -161,12 +145,12 @@ def main():
     parser.add_argument('--seed',                      type=int,   help='random seed.', default=42)
     parser.add_argument('--mode',                      type=str,   help='train or test', default='train')
     parser.add_argument('--model_name',                type=str,   help='model name', default='monodepth')
-    parser.add_argument('--encoder',                   type=str,   help='type of encoder, vgg or resnet50', default='vgg')
+    parser.add_argument('--encoder',                   type=str,   help='type of encoder, vgg or resnet50', default='resnet')
     parser.add_argument('--dataset',                   type=str,   help='dataset to train on, kitti, or cityscapes', default='kitti')
     parser.add_argument('--data_path',                 type=str,   help='path to the data', default='eigen/')
-    parser.add_argument('--filenames_train',           type=str,   help='path to the train filenames text file', default='eval/filenames/eigen_train_files.txt')
-    parser.add_argument('--filenames_val',             type=str,   help='path to the val filenames text file', default='eval/filenames/eigen_val_files.txt')
-    parser.add_argument('--filenames_test',            type=str,   help='path to the test filenames text file', default='eval/filenames/eigen_test_files.txt')
+    parser.add_argument('--filenames_train',           type=str,   help='path to the train filenames text file', default='filenames/eigen_train_files.txt')
+    parser.add_argument('--filenames_val',             type=str,   help='path to the val filenames text file', default='filenames/eigen_val_files.txt')
+    parser.add_argument('--filenames_test',            type=str,   help='path to the test filenames text file', default='filenames/eigen_test_files.txt')
     parser.add_argument('--use_aug',                   type=int,   help='whether to use augmentation in dataloading.', default=1)
     parser.add_argument('--height',                    type=int,   help='input height', default=256)
     parser.add_argument('--width',                     type=int,   help='input width', default=512)

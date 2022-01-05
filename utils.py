@@ -8,6 +8,22 @@ def setup_seed(seed=42):
     np.random.seed(seed)
     paddle.seed(seed)
 
+def post_process_disparity(disp):
+    h, w = disp.shape[-2:]
+    l_disp = disp[0]
+    r_disp = np.flip(disp[1], axis=-1)
+    m_disp = 0.5 * (l_disp + r_disp)
+    l, _ = np.meshgrid(np.linspace(0, 1, w), np.linspace(0, 1, h))
+    l_mask = 1.0 - np.clip(20 * (l.astype(np.float32) - 0.05), 0, 1)
+    r_mask = np.flip(l_mask, axis=-1)
+    return r_mask * l_disp + l_mask * r_disp + (1.0 - l_mask - r_mask) * m_disp
+
+def count_text_lines(file_path):
+    f = open(file_path, 'r')
+    lines = f.readlines()
+    f.close()
+    return len(lines)
+
 def load_tensorflow_weight(model, tensorflow_weight_file):
     named_params = dict(model.named_parameters())
     paddle_param_names = list(named_params.keys()) # name is in the insertion order with python 3.7

@@ -3,3 +3,4 @@ opencv-python
 h5py
 tqdm
 pandas
+matplotlib
