@@ -63,7 +63,7 @@ def train(params):
             optim.step()
             lr_scheduler.step()
             duration = time.time() - before_op_time
-            losses.append(loss.numpy()[0])
+            losses.append(float(loss))
 
             if step and step % 100 == 0:
                 examples_per_sec = params.batch_size / duration
@@ -82,7 +82,7 @@ def train(params):
             for left, right in iter(val_loader):
                 disp_left_est, disp_right_est = model(left, right)
                 loss = loss_fn(disp_left_est, disp_right_est, left, right)
-                val_losses.append(loss.numpy()[0])
+                val_losses.append(float(loss))
             val_cost_time = time.time() - val_start_time
             val_loss = sum(val_losses) / len(val_losses)
 
